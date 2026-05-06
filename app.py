@@ -9,7 +9,7 @@ st.set_page_config(
     layout="centered"
 )
 
-# Magic chime sound effect
+# Magic chime sound effect (Reveal sound)
 star_sound_url = "https://www.soundjay.com/magic/magic-chime-01.mp3"
 
 st.markdown(f"""
@@ -47,19 +47,6 @@ st.markdown(f"""
     </script>
     """, unsafe_allow_html=True)
 
-# PINALAKAS NA SPOTIFY PLAYER LOGIC
-def spotify_player(song_query):
-    if song_query and song_query.strip():
-        clean_query = song_query.replace(' ', '%20')
-        search_url = f"https://open.spotify.com/embed/search/{clean_query}"
-        # Dagdag na 'allow="autoplay"' para sa browser compatibility
-        return f"""
-        <iframe src="{search_url}" width="100%" height="152" frameBorder="0" 
-        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
-        allowfullscreen="" style="border-radius:12px; border:none;"></iframe>
-        """
-    return ""
-
 if 'undecided_letters' not in st.session_state:
     st.session_state.undecided_letters = []
 
@@ -71,7 +58,7 @@ if msg_id:
     found = next((m for m in st.session_state.undecided_letters if m['id'] == msg_id), None)
     if found:
         st.markdown('<h1 class="main-title">Stars of Undecided Letters</h1>', unsafe_allow_html=True)
-        st.write("<p style='text-align: center; opacity: 0.7;'>A star and its melody have found you.</p>", unsafe_allow_html=True)
+        st.write("<p style='text-align: center; opacity: 0.7;'>A star has found you.</p>", unsafe_allow_html=True)
         
         col1, col2, col3 = st.columns([1,1,1])
         with col2:
@@ -85,10 +72,6 @@ if msg_id:
                 <p style='font-family:Courier New; font-size:18px; margin-top:10px;'>{found['content']}</p>
                 <p style='text-align:right; color:#FFD700; font-size:12px;'>— For: {found['to'].upper()}</p>
             </div>""", unsafe_allow_html=True)
-            if found.get("song"):
-                st.write("🎵 **Star's Melody:**")
-                # Gamit ang height=180 para hindi maputol ang play button
-                st.components.v1.html(spotify_player(found["song"]), height=180)
 
 # --- MAIN NAVIGATION ---
 else:
@@ -111,23 +94,11 @@ else:
                     
                     if st.session_state.get(f"reveal_{i}", False):
                         st.markdown(f'<div class="letter-box"><p>{res["content"]}</p></div>', unsafe_allow_html=True)
-                        if res.get("song"):
-                            st.components.v1.html(spotify_player(res["song"]), height=180)
 
     with tab2:
         with st.form("letter_form", clear_on_submit=True):
             to_name = st.text_input("To:", placeholder="Recipient's Name")
             message = st.text_area("Message:", placeholder="Things left unsaid...")
-            
-            st.write("🎵 **Search for any Melody**")
-            user_song_search = st.text_input(
-                "Type Song Title & Artist", 
-                placeholder="e.g. Somebody's Pleasure - Aziz Hedra"
-            )
-            
-            if user_song_search.strip():
-                st.write("🔍 **Previewing:**")
-                st.components.v1.html(spotify_player(user_song_search), height=180)
             
             if st.form_submit_button("Release to the Sky"):
                 if to_name and message:
@@ -136,7 +107,6 @@ else:
                         "id": uid, 
                         "to": to_name.lower().strip(), 
                         "content": message, 
-                        "song": user_song_search, 
                         "time": datetime.now().strftime("%d %b %Y").upper()
                     })
                     st.success("Released!")
