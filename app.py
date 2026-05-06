@@ -9,7 +9,7 @@ st.set_page_config(
     layout="centered"
 )
 
-# Magic chime sound effect (3-second limit)
+# Magic chime sound effect
 star_sound_url = "https://www.soundjay.com/magic/magic-chime-01.mp3"
 
 st.markdown(f"""
@@ -46,7 +46,6 @@ st.markdown(f"""
     </script>
     """, unsafe_allow_html=True)
 
-# Function for Spotify Search Embed (With Scrubber)
 def spotify_player(song_query):
     if song_query and song_query.strip():
         search_url = f"https://open.spotify.com/embed/search/{song_query.replace(' ', '%20')}"
@@ -59,21 +58,18 @@ def spotify_player(song_query):
         """
     return ""
 
-# Initialize Database
 if 'undecided_letters' not in st.session_state:
     st.session_state.undecided_letters = []
 
 query_params = st.query_params
 msg_id = query_params.get("id", "")
 
-# --- HEADER ---
-st.markdown('<p class="owner-branding">MICHAELA PETITE S. MALABANAN</p>', unsafe_allow_html=True)
-st.markdown('<h1 class="main-title">Stars of Undecided Letters</h1>', unsafe_allow_html=True)
-
-# --- RECIPIENT VIEW ---
+# --- RECIPIENT VIEW (Second Page) ---
+# Your name is removed from this section for privacy
 if msg_id:
     found = next((m for m in st.session_state.undecided_letters if m['id'] == msg_id), None)
     if found:
+        st.markdown('<h1 class="main-title">Stars of Undecided Letters</h1>', unsafe_allow_html=True)
         st.write("<p style='text-align: center; opacity: 0.7;'>A star and its melody have found you.</p>", unsafe_allow_html=True)
         col1, col2, col3 = st.columns([1,1,1])
         with col2:
@@ -90,8 +86,11 @@ if msg_id:
             if found.get("song"):
                 st.markdown(spotify_player(found["song"]), unsafe_allow_html=True)
 
-# --- MAIN NAVIGATION ---
+# --- MAIN NAVIGATION (First Page) ---
 else:
+    st.markdown('<p class="owner-branding">PETY</p>', unsafe_allow_html=True)
+    st.markdown('<h1 class="main-title">Stars of Undecided Letters</h1>', unsafe_allow_html=True)
+    
     tab1, tab2 = st.tabs(["🔍 Search Sky", "✍️ Leave Letter"])
 
     with tab1:
@@ -120,8 +119,6 @@ else:
             message = st.text_area("Message:", placeholder="Things left unsaid...")
             
             st.write("🎵 **Search for any Melody**")
-            
-            # The Aziz Hedra example is set as the placeholder here
             user_song_search = st.text_input(
                 "Type Song Title & Artist", 
                 placeholder="e.g. Somebody's Pleasure - Aziz Hedra"
@@ -144,6 +141,6 @@ else:
                     st.success("Released! Share this star's link:")
                     st.code(f"https://stars-of-undecided-letters.streamlit.app/?id={uid}")
 
-# --- FOOTER ---
-st.markdown("<br><hr style='opacity:0.1;'>", unsafe_allow_html=True)
-st.markdown(f"<p style='text-align:center; font-size:13px; letter-spacing:1px; color:#FFD700;'>BY MICHAELA PETITE S. MALABANAN</p>", unsafe_allow_html=True)
+    # Footer only on the main page
+    st.markdown("<br><hr style='opacity:0.1;'>", unsafe_allow_html=True)
+    st.markdown(f"<p style='text-align:center; font-size:13px; letter-spacing:1px; color:#FFD700;'>BY PETY</p>", unsafe_allow_html=True)
