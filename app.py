@@ -47,15 +47,16 @@ st.markdown(f"""
     </script>
     """, unsafe_allow_html=True)
 
-# Spotify Player Function using HTML components for maximum reliability
+# PINALAKAS NA SPOTIFY PLAYER LOGIC
 def spotify_player(song_query):
     if song_query and song_query.strip():
         clean_query = song_query.replace(' ', '%20')
         search_url = f"https://open.spotify.com/embed/search/{clean_query}"
+        # Dagdag na 'allow="autoplay"' para sa browser compatibility
         return f"""
         <iframe src="{search_url}" width="100%" height="152" frameBorder="0" 
-        allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
-        style="border-radius:12px; border:none;"></iframe>
+        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
+        allowfullscreen="" style="border-radius:12px; border:none;"></iframe>
         """
     return ""
 
@@ -86,7 +87,8 @@ if msg_id:
             </div>""", unsafe_allow_html=True)
             if found.get("song"):
                 st.write("🎵 **Star's Melody:**")
-                st.components.v1.html(spotify_player(found["song"]), height=160)
+                # Gamit ang height=180 para hindi maputol ang play button
+                st.components.v1.html(spotify_player(found["song"]), height=180)
 
 # --- MAIN NAVIGATION ---
 else:
@@ -110,7 +112,7 @@ else:
                     if st.session_state.get(f"reveal_{i}", False):
                         st.markdown(f'<div class="letter-box"><p>{res["content"]}</p></div>', unsafe_allow_html=True)
                         if res.get("song"):
-                            st.components.v1.html(spotify_player(res["song"]), height=160)
+                            st.components.v1.html(spotify_player(res["song"]), height=180)
 
     with tab2:
         with st.form("letter_form", clear_on_submit=True):
@@ -125,7 +127,7 @@ else:
             
             if user_song_search.strip():
                 st.write("🔍 **Previewing:**")
-                st.components.v1.html(spotify_player(user_song_search), height=160)
+                st.components.v1.html(spotify_player(user_song_search), height=180)
             
             if st.form_submit_button("Release to the Sky"):
                 if to_name and message:
