@@ -48,7 +48,7 @@ st.markdown(f"""
 
 # Function for Spotify Search Embed (With Scrubber)
 def spotify_player(song_query):
-    if song_query:
+    if song_query and song_query.strip():
         search_url = f"https://open.spotify.com/embed/search/{song_query.replace(' ', '%20')}"
         return f"""
         <div style="margin-top: 15px;">
@@ -121,13 +121,13 @@ else:
             
             st.write("🎵 **Search for any Melody**")
             
-            # UNLIMITED SEARCH BOX
+            # The Aziz Hedra example is set as the placeholder here
             user_song_search = st.text_input(
                 "Type Song Title & Artist", 
-                placeholder="e.g. Birds of a Feather - Billie Eilish"
+                placeholder="e.g. Somebody's Pleasure - Aziz Hedra"
             )
             
-            if user_song_search:
+            if user_song_search.strip():
                 st.markdown("**Previewing Match:**")
                 st.markdown(spotify_player(user_song_search), unsafe_allow_html=True)
             
