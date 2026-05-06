@@ -2,7 +2,7 @@ import streamlit as st
 from datetime import datetime
 import uuid
 
-# 1. Page Configuration & Owner Branding
+# 1. Page Configuration
 st.set_page_config(
     page_title="Stars of Undecided Letters", 
     page_icon="✨", 
@@ -18,6 +18,7 @@ st.markdown(f"""
     .owner-branding {{ 
         font-family: 'Courier New', monospace; font-size: 16px; text-align: center; 
         color: #FFD700; font-weight: bold; letter-spacing: 3px; text-transform: uppercase; 
+        margin-bottom: 5px;
     }}
     .main-title {{ 
         font-family: 'Courier New', monospace; font-size: 38px; text-align: center; 
@@ -46,15 +47,15 @@ st.markdown(f"""
     </script>
     """, unsafe_allow_html=True)
 
+# Spotify Player Function using HTML components for maximum reliability
 def spotify_player(song_query):
     if song_query and song_query.strip():
-        search_url = f"https://open.spotify.com/embed/search/{song_query.replace(' ', '%20')}"
+        clean_query = song_query.replace(' ', '%20')
+        search_url = f"https://open.spotify.com/embed/search/{clean_query}"
         return f"""
-        <div style="margin-top: 15px;">
-            <iframe src="{search_url}" width="100%" height="152" frameBorder="0" 
-            allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
-            style="border-radius:12px; box-shadow: 0 0 10px rgba(255,215,0,0.2);"></iframe>
-        </div>
+        <iframe src="{search_url}" width="100%" height="152" frameBorder="0" 
+        allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
+        style="border-radius:12px; border:none;"></iframe>
         """
     return ""
 
@@ -64,13 +65,13 @@ if 'undecided_letters' not in st.session_state:
 query_params = st.query_params
 msg_id = query_params.get("id", "")
 
-# --- RECIPIENT VIEW (Second Page) ---
-# Your name is removed from this section for privacy
+# --- RECIPIENT VIEW ---
 if msg_id:
     found = next((m for m in st.session_state.undecided_letters if m['id'] == msg_id), None)
     if found:
         st.markdown('<h1 class="main-title">Stars of Undecided Letters</h1>', unsafe_allow_html=True)
         st.write("<p style='text-align: center; opacity: 0.7;'>A star and its melody have found you.</p>", unsafe_allow_html=True)
+        
         col1, col2, col3 = st.columns([1,1,1])
         with col2:
             if st.button("⭐", key="direct"):
@@ -84,9 +85,10 @@ if msg_id:
                 <p style='text-align:right; color:#FFD700; font-size:12px;'>— For: {found['to'].upper()}</p>
             </div>""", unsafe_allow_html=True)
             if found.get("song"):
-                st.markdown(spotify_player(found["song"]), unsafe_allow_html=True)
+                st.write("🎵 **Star's Melody:**")
+                st.components.v1.html(spotify_player(found["song"]), height=160)
 
-# --- MAIN NAVIGATION (First Page) ---
+# --- MAIN NAVIGATION ---
 else:
     st.markdown('<p class="owner-branding">PETY</p>', unsafe_allow_html=True)
     st.markdown('<h1 class="main-title">Stars of Undecided Letters</h1>', unsafe_allow_html=True)
@@ -100,18 +102,15 @@ else:
             results = [m for m in st.session_state.undecided_letters if m['to'] == query]
             if results:
                 st.write(f"✨ Found {len(results)} star(s):")
-                cols = st.columns(5)
                 for i, res in enumerate(results):
-                    with cols[i % 5]:
-                        label = "⭐🎵" if res.get("song") else "⭐"
-                        if st.button(label, key=f"s_{i}"):
-                            st.components.v1.html(f"""<script>window.parent.playStarSound();</script>""", height=0)
-                            st.session_state[f"reveal_{i}"] = True
+                    if st.button(f"⭐ Open Star {i+1}", key=f"s_{i}"):
+                        st.components.v1.html(f"""<script>window.parent.playStarSound();</script>""", height=0)
+                        st.session_state[f"reveal_{i}"] = True
                     
                     if st.session_state.get(f"reveal_{i}", False):
                         st.markdown(f'<div class="letter-box"><p>{res["content"]}</p></div>', unsafe_allow_html=True)
                         if res.get("song"):
-                            st.markdown(spotify_player(res["song"]), unsafe_allow_html=True)
+                            st.components.v1.html(spotify_player(res["song"]), height=160)
 
     with tab2:
         with st.form("letter_form", clear_on_submit=True):
@@ -125,8 +124,8 @@ else:
             )
             
             if user_song_search.strip():
-                st.markdown("**Previewing Match:**")
-                st.markdown(spotify_player(user_song_search), unsafe_allow_html=True)
+                st.write("🔍 **Previewing:**")
+                st.components.v1.html(spotify_player(user_song_search), height=160)
             
             if st.form_submit_button("Release to the Sky"):
                 if to_name and message:
@@ -138,9 +137,5 @@ else:
                         "song": user_song_search, 
                         "time": datetime.now().strftime("%d %b %Y").upper()
                     })
-                    st.success("Released! Share this star's link:")
+                    st.success("Released!")
                     st.code(f"https://stars-of-undecided-letters.streamlit.app/?id={uid}")
-
-    # Footer only on the main page
-    st.markdown("<br><hr style='opacity:0.1;'>", unsafe_allow_html=True)
-    st.markdown(f"<p style='text-align:center; font-size:13px; letter-spacing:1px; color:#FFD700;'>BY PETY</p>", unsafe_allow_html=True)
